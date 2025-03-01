@@ -1,16 +1,17 @@
 import pygame
 import sys
 import random
+from mapping import render_grid
 
 # Field dimensions (scaled for window size)
 SCALE_FACTOR = 6
-FIELD_WIDTH = 203*SCALE_FACTOR  # Width of the field
-FIELD_HEIGHT = 135*SCALE_FACTOR  # Height of the field
-MARGIN = 20*(SCALE_FACTOR/5)  # Margin for the borders
+FIELD_WIDTH = 203 * SCALE_FACTOR  # Width of the field
+FIELD_HEIGHT = 135 * SCALE_FACTOR  # Height of the field
+MARGIN = 20 * (SCALE_FACTOR / 5)  # Margin for the borders
 
 # Initialize Pygame
 pygame.init()
-WIDTH, HEIGHT = FIELD_WIDTH+MARGIN*2, FIELD_HEIGHT+MARGIN*2  # Window dimensions
+WIDTH, HEIGHT = FIELD_WIDTH + MARGIN * 2, FIELD_HEIGHT + MARGIN * 2  # Window dimensions
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Pixy2 Multi-Robot Tracking")
 
@@ -37,11 +38,11 @@ def render_field():
     pygame.draw.circle(screen, WHITE, (MARGIN + FIELD_WIDTH // 2, MARGIN + FIELD_HEIGHT // 2), 5)
     
     # Draw center circle (radius 30 cm, scaled)
-    pygame.draw.circle(screen, WHITE, (MARGIN + FIELD_WIDTH // 2, MARGIN + FIELD_HEIGHT // 2), 60*SCALE_FACTOR/2, 2)
+    pygame.draw.circle(screen, WHITE, (MARGIN + FIELD_WIDTH // 2, MARGIN + FIELD_HEIGHT // 2), 60 * SCALE_FACTOR / 2, 2)
     
     # **Updated Goal Rendering**: Goal area and goals at left and right sides
-    goal_width = FIELD_HEIGHT/3  # 3 meters scaled down to fit the field
-    goal_depth = (7.4*SCALE_FACTOR)/MARGIN*4  # Depth of the goal (scaled to 10 cm for window)
+    goal_width = FIELD_HEIGHT / 3  # 3 meters scaled down to fit the field
+    goal_depth = (7.4 * SCALE_FACTOR) / MARGIN * 4  # Depth of the goal (scaled to 10 cm for window)
     
     # Left goal (centered vertically on the left side)
     pygame.draw.rect(screen, YELLOW, (MARGIN - goal_depth, MARGIN + FIELD_HEIGHT // 2 - goal_width // 2, goal_depth, goal_width))  
@@ -153,6 +154,8 @@ def handle_mode_switch(robot_positions, font):
 
         # Render the field, mode indicator, and robots
         render_field()
+        if mode == "manual":  # Only render grid in manual mode
+            render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, SCALE_FACTOR)
         render_robots(robot_positions)
         render_mode_indicator(mode, font)
         pygame.display.flip()  # Update the screen
@@ -170,6 +173,9 @@ def main():
 
     # Render field once on start to avoid black screen
     render_field()
+
+    render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, SCALE_FACTOR)
+    
     pygame.display.flip()  # Update screen to show the field
 
     handle_mode_switch(robot_positions, font)
