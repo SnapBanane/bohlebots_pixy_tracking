@@ -155,7 +155,7 @@ def handle_mode_switch(robot_positions, font):
         # Render the field, mode indicator, and robots
         render_field()
         if mode == "manual":  # Only render grid in manual mode
-            render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, SCALE_FACTOR)
+            render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, MARGIN, SCALE_FACTOR)
         render_robots(robot_positions)
         render_mode_indicator(mode, font)
         pygame.display.flip()  # Update the screen
@@ -174,7 +174,7 @@ def main():
     # Render field once on start to avoid black screen
     render_field()
 
-    render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, SCALE_FACTOR)
+    render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, MARGIN, SCALE_FACTOR)
     
     pygame.display.flip()  # Update screen to show the field
 
