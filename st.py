@@ -88,6 +88,7 @@ def read_serial_data():
     return None
 
 def generate_starting_positions():
+    print("Generating starting positions")
     center_x = MARGIN + FIELD_WIDTH // 2
     center_y = MARGIN + FIELD_HEIGHT // 2
     radius = 30 * SCALE_FACTOR
@@ -220,8 +221,8 @@ def create_heatmap(heatmap):
     import numpy as np
 
     # Print the heatmap array for debugging
-    print("Heatmap array:")
-    print(np.array2string(heatmap, separator=', '))
+    # print("Heatmap array:")
+    # print(np.array2string(heatmap, separator=', '))
 
     plt.imshow(heatmap, cmap='hot', interpolation='nearest')
     plt.colorbar()
