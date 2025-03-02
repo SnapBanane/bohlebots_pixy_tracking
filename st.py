@@ -162,15 +162,23 @@ def handle_mode_switch(robot_positions, font, heatmap):
 
         # Handle automatic mode behavior
         if mode == "auto":
-            # Simulate reading serial data and slow down movement
             for robot_id in robot_positions.keys():
-                # Move the robot by a small amount (e.g., 5 units) every frame
-                new_x = robot_positions[robot_id][0] + random.randint(-5, 5)
-                new_y = robot_positions[robot_id][1] + random.randint(-5, 5)
-                # Check bounds and ensure the robot stays within the field
-                new_x = max(MARGIN, min(MARGIN + FIELD_WIDTH, new_x))
-                new_y = max(MARGIN, min(MARGIN + FIELD_HEIGHT, new_y))
-                robot_positions[robot_id] = (new_x, new_y)
+                if ser:
+                    serial_data = read_serial_data()
+                    if serial_data:
+                        robot_id, new_x, new_y = serial_data
+                        # Check bounds and ensure the robot stays within the field
+                        new_x = max(MARGIN, min(MARGIN + FIELD_WIDTH, new_x))
+                        new_y = max(MARGIN, min(MARGIN + FIELD_HEIGHT, new_y))
+                        robot_positions[robot_id] = (new_x, new_y)
+                else:
+                    # Move the robot by a small amount (e.g., 5 units) every frame
+                    new_x = robot_positions[robot_id][0] + random.randint(-5, 5)
+                    new_y = robot_positions[robot_id][1] + random.randint(-5, 5)
+                    # Check bounds and ensure the robot stays within the field
+                    new_x = max(MARGIN, min(MARGIN + FIELD_WIDTH, new_x))
+                    new_y = max(MARGIN, min(MARGIN + FIELD_HEIGHT, new_y))
+                    robot_positions[robot_id] = (new_x, new_y)
 
         # Render the field, mode indicator, and robots
         render_field()
@@ -228,7 +236,7 @@ def main():
     # Render field once on start to avoid black screen
     render_field()
 
-    # render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, MARGIN, SCALE_FACTOR)
+    render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, MARGIN, SCALE_FACTOR)
     
     pygame.display.flip()  # Update screen to show the field
 
