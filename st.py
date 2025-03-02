@@ -67,7 +67,8 @@ def render_mode_indicator(mode, font):
 
 def read_serial_data():
     """
-    # Reads and processes serial data from ESP32.
+    Reads and processes serial data from ESP32.
+    """
     if ser is None:
         return None  # Skip if serial is not available
     try:
@@ -85,17 +86,38 @@ def read_serial_data():
     except (ValueError, serial.SerialException):
         print("Serial read error")
     return None
-    """
-    x = random.randint(0, 300)
-    y = random.randint(0, 200)
 
-    x = int((300 - x) * (FIELD_WIDTH / 300))
-    y = int((200 - y) * (FIELD_HEIGHT / 200))
+def generate_starting_positions():
+    center_x = MARGIN + FIELD_WIDTH // 2
+    center_y = MARGIN + FIELD_HEIGHT // 2
+    radius = 30 * SCALE_FACTOR
 
-    return (1, x + MARGIN, y + MARGIN)
+    # Positions inside and outside the circle
+    position_inside_left = (center_x - 25, center_y)
+    position_outside_left = (center_x - radius - 25, center_y + (random.randint(-radius, radius) // 2))
+    position_inside_right = (center_x + 25, center_y)
+    position_outside_right = (center_x + radius + 25, center_y + (random.randint(-radius, radius) // 2))
+
+    # Valid combinations ensuring one inside, one outside
+    combinations = [
+        (position_inside_left, position_outside_right),
+        (position_outside_left, position_inside_right)
+    ]
+
+    # Randomly choose a combination
+    combination = random.choice(combinations)
+
+    # Assign positions to the robots
+    positions = {
+        1 : combination[0],  # Robot with kickoff
+        2 : combination[1]  # Robot without kickoff
+    }
+
+    return positions
 
 def handle_mode_switch(robot_positions, font, heatmap):
     mode = "manual"  # Default mode is manual
+    grid = "off"
     input_active = False  # Flag to check if input is active
     
     while True:
@@ -114,6 +136,11 @@ def handle_mode_switch(robot_positions, font, heatmap):
                 elif event.key == pygame.K_h:  # Press 'h' to create heat map
                     create_heatmap(heatmap)
                     return
+                elif event.key == pygame.K_g: # Toggle Grid
+                    if grid == "off":
+                        grid = "on"
+                    else:
+                        grid = "off"
                 
                 if mode == "manual" and event.key == pygame.K_RETURN:  # When in manual mode, allow input
                     input_active = True
@@ -137,19 +164,17 @@ def handle_mode_switch(robot_positions, font, heatmap):
         if mode == "auto":
             # Simulate reading serial data and slow down movement
             for robot_id in robot_positions.keys():
-                serial_data = read_serial_data()
-                if serial_data:
-                    robot_id, new_x, new_y = serial_data
-                    # Check bounds and ensure the robot stays within the field
-                    new_x = max(MARGIN, min(MARGIN + FIELD_WIDTH, new_x))
-                    new_y = max(MARGIN, min(MARGIN + FIELD_HEIGHT, new_y))
-                    robot_positions[robot_id] = (new_x, new_y)
-                else:
-                    print("Error processing serial data")
+                # Move the robot by a small amount (e.g., 5 units) every frame
+                new_x = robot_positions[robot_id][0] + random.randint(-5, 5)
+                new_y = robot_positions[robot_id][1] + random.randint(-5, 5)
+                # Check bounds and ensure the robot stays within the field
+                new_x = max(MARGIN, min(MARGIN + FIELD_WIDTH, new_x))
+                new_y = max(MARGIN, min(MARGIN + FIELD_HEIGHT, new_y))
+                robot_positions[robot_id] = (new_x, new_y)
 
         # Render the field, mode indicator, and robots
         render_field()
-        if mode == "manual":  # Only render grid in manual mode
+        if grid == "on":  # Only render grid in manual mode
             render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, MARGIN, SCALE_FACTOR)
         render_robots(robot_positions, heatmap)
         render_mode_indicator(mode, font)
@@ -184,6 +209,11 @@ def get_text_input(robot_positions, font):
 
 def create_heatmap(heatmap):
     import matplotlib.pyplot as plt
+    import numpy as np
+
+    # Print the heatmap array for debugging
+    print("Heatmap array:")
+    print(np.array2string(heatmap, separator=', '))
 
     plt.imshow(heatmap, cmap='hot', interpolation='nearest')
     plt.colorbar()
@@ -191,14 +221,14 @@ def create_heatmap(heatmap):
     plt.show()
 
 def main():
-    robot_positions = {1: (200, 200), 2: (400, 200)}  # Initial positions for two robots
+    robot_positions = generate_starting_positions()  # Generate starting positions for robots
     font = pygame.font.Font(None, 36)
     heatmap = np.zeros((32, 32), dtype=int)  # Initialize heatmap
 
     # Render field once on start to avoid black screen
     render_field()
 
-    render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, MARGIN, SCALE_FACTOR)
+    # render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, MARGIN, SCALE_FACTOR)
     
     pygame.display.flip()  # Update screen to show the field
 

@@ -22,14 +22,7 @@ def render_grid(screen, field_width, field_height, margin, scale_factor):
             text_rect = text.get_rect(center=(x + square_width / 2, y + square_height / 2))
             screen.blit(text, text_rect)
 
-def store_robot_positions(robot_positions):
-    with open("robot_positions.txt", "w") as f:
-        for robot_id, (x, y) in robot_positions.items():
-            f.write(f"{robot_id},{x},{y}\n")
-
 def create_heatmap(heatmap):
-    import matplotlib.pyplot as plt
-
     plt.imshow(heatmap, cmap='hot', interpolation='nearest')
     plt.colorbar()
     plt.title("Robot Heatmap")
