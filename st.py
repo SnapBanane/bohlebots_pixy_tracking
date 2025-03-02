@@ -117,6 +117,8 @@ def handle_mode_switch(robot_positions, font):
                 robot_positions[robot_id] = (x, y)
 
         render_field()
+        if mode == "manual":
+            render_grid(screen, FIELD_WIDTH, FIELD_HEIGHT, MARGIN, SCALE_FACTOR)
         render_robots(robot_positions)
         render_mode_indicator(mode, font)
         pygame.display.flip()
